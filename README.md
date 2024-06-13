@@ -38,9 +38,37 @@
     ```
 
 
-
-
 ## 디렉토리 구조
 
 ```plaintext
-
+.
+├── -NEXTAUTH
+├── src/
+│   ├── app/
+│   │   ├── (admin)/
+│   │   │   └── dashboard/
+│   │   │       └── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   └── register/
+│   │   │       └── page.tsx
+│   │   ├── layout.tsx
+│   │   └── api/
+│   │       └── auth/
+│   │           └── [...nextath]/
+│   │               └── route.ts
+│   ├── components/
+│   │   ├── LoginForm.tsx
+│   │   └── RegisterForm.tsx
+│   ├── lib/
+│   │   ├── action.ts
+│   │   ├── db.ts
+│   │   ├── getsession.ts
+│   │   └── schema.ts
+│   ├── layout.tsx
+│   └── page.tsx
+├── auth.ts
+└── middleware.ts
+```
