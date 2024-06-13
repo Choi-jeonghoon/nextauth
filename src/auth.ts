@@ -1,12 +1,9 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
 import { User } from "./lib/schema";
 import connectDB from "./lib/db";
 import { compare } from "bcryptjs";
-
-import GitHub from "next-auth/providers/github";
-
-// import Google from "next-auth/providers/Google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -48,38 +45,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_SECRET_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
     }),
-    // Google({
-    //   clientId: process.env.GOOGLE_CLIENT_ID,
-    //   clientSecret: process.env.GOOGLE_SECRET_ID,
-    // }),
   ],
   callbacks: {
     signIn: async ({ user, account }: { user: any; account: any }) => {
       console.log("signIn", user, account);
       if (account?.provider === "github") {
+        //로직을 구현할거니까
         const { name, email } = user;
-        await connectDB(); //몽고디비 연결
-        const existingUser = await User.findOne({ authProviderId: user.id });
+        await connectDB(); // mongodb 연결
+        const existingUser = await User.findOne({
+          email,
+          authProviderId: "github",
+        });
         if (!existingUser) {
           //소셜 가입
           await new User({
             name,
             email,
-            authProviderId: user.id,
+            authProviderId: "github",
             role: "user",
           }).save();
         }
-        const soclaUser = await User.findOne({ authProviderId: user.id });
-        //있으면 정보가져오기
-        user.role = soclaUser?.role || "user";
-        user.id = soclaUser?._id || null;
+        const socialUser = await User.findOne({ authProviderId: "github" });
 
-        return true; //깃헙이면 잠시 멈춰
+        user.role = socialUser?.role || "user";
+        user.id = socialUser?._id || null;
+        return true;
       } else {
-        return true; //아니면 통과
+        //크레덴셜 통과
+        return true;
       }
+      // return false;
     },
     async jwt({ token, user }: { token: any; user: any }) {
       console.log("jwt", token, user);
